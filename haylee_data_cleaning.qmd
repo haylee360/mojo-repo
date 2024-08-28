@@ -18,6 +18,7 @@ library(janitor)
 library(here)
 library(lubridate)
 library(skimr)
+library(patchwork)
 ```
 
 ## Set wd and read in data
@@ -71,6 +72,16 @@ skim(stream_df)
 ## Plot data
 ```{r}
 plot1_df <- stream_df %>% 
-  select(date, k, no3_n, sample_id, )
+  select(date, k, no3_n, sample_id) %>% 
+  mutate(year = year(date)) %>% 
+  # filter(year >= 1988 & year <= 1994)
+  filter(year %in% 1988:1994)
+```
+
+```{r}
+ggplot(plot1_df, aes(x = date, y = k)) + 
+  geom_smooth(aes(linetype = sample_id)) +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
 ```
 
