@@ -3,7 +3,9 @@
 ##                      Data import, cleaning, and joining                    ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Load libraries
+
+# Load libraries and clear environment
+rm(list = ls())
 library(tidyverse)
 library(janitor)
 library(lubridate)
