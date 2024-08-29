@@ -63,27 +63,30 @@ stream_df <- rbind(BQ12, BQ3PRM)
 
 ## Explore data
 
-```{r}
+```{r, eval=FALSE}
 summary(stream_df)
 names(stream_df)
 skim(stream_df)
 ```
 
-## Plot data
+## Get Data ready to plot
 ```{r}
+# Data for the Nitrate plot
 plot1_df <- stream_df %>% 
   select(date, k, no3_n, sample_id) %>% 
   mutate(year = year(date)) %>% 
   # filter(year >= 1988 & year <= 1994)
   filter(year %in% 1988:1994)
 
+# Data for the K plot
 kplot <- plot1_df %>% 
   filter(date %in% ymd("1988-10-01"):ymd("1992-03-01"))
 ```
 
 ### Potassium Plot
 ```{r}
-ggplot(kplot, aes(x = date, y = k)) + 
+ggplot(kplot, aes(x = date, y = k)) +
+  # we used smooth to reduce some of the noise of the data
   geom_smooth(span = 0.1, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6) +
   scale_x_date(position = "top", date_breaks = "12 months", 
@@ -117,6 +120,7 @@ ggplot(kplot, aes(x = date, y = k)) +
 ### Nitrate plot
 ```{r}
 ggplot(plot1_df, aes(x = date, y = no3_n)) +
+  # we used smooth to reduce some of the noise of the data
   geom_smooth(span = 0.2, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6, 
               show.legend = FALSE) +
@@ -135,6 +139,7 @@ ggplot(plot1_df, aes(x = date, y = no3_n)) +
 
 ### Combined plot
 ```{r}
+# Saving the early plot as an object to use with Patchwork
 p1 <- ggplot(kplot, aes(x = date, y = k)) + 
   geom_smooth(span = 0.1, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6) +
@@ -155,11 +160,13 @@ p1 <- ggplot(kplot, aes(x = date, y = k)) +
         legend.title = element_blank(),
         legend.key = element_blank(),
         legend.key.size = unit(1.4, 'cm'),
+        legend.background = element_blank(),
         text = element_text(size = 14, 
                             family = "sans serif", 
                             face = "bold"),
         legend.text = element_text(size = 16))
 
+# Saving the early plot as an object to use with Patchwork
 p2 <- ggplot(plot1_df, aes(x = date, y = no3_n)) +
   geom_smooth(span = 0.1, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6, 
@@ -185,3 +192,9 @@ p1 / p2  & theme(plot.margin = margin(0, 0, 0, 10),
                 panel.background = element_rect(fill = "white"), 
                 panel.border = element_rect(color = "black", fill = NA))
 ```
+
+### Save the plot for powerpoint use
+```{r}
+ggsave(here("replica_plot.png"), width = 10, height = 6)
+```
+
