@@ -1,0 +1,59 @@
+"0","setwd(""/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data"")"
+"2","Warning: The working directory was changed to /courses/EDS214/group_project/2024/team-mojo-jojo/raw_data inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks."
+"0","getwd()"
+"1","[1]"
+"1"," ""/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data"""
+"1","
+"
+"0","BQ1 <- read_csv(""/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/QuebradaCuenca1-Bisley.csv"")"
+"2","Warning: [38;5;232mOne or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat)[39m"
+"2","[1mRows: [22m[34m1742[39m [1mColumns: [22m[34m38[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m──────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (10): Sample_ID, NitrateCode, SulfateCode, SodiumCode, PotassiumCode,...
+[32mdbl[39m  (21): Code, Sample_Time, Gage_Ht, Temp, pH, Cond, Cl, NO3-N, SO4-S, N...
+[33mlgl[39m   (6): TDP, ChlorideCode, MagnesiumCode, CalciumCode, DICCode, SiO2Code
+[34mdate[39m  (1): Sample_Date"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","BQ2 <- read_csv(""/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/QuebradaCuenca2-Bisley.csv"")"
+"2","Warning: [38;5;232mOne or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat)[39m"
+"2","[1mRows: [22m[34m1733[39m [1mColumns: [22m[34m38[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m──────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m   (9): Sample_ID, NitrateCode, SulfateCode, PotassiumCode, NH4Code, PO...
+[32mdbl[39m  (21): Code, Sample_Time, Gage_Ht, Temp, pH, Cond, Cl, NO3-N, SO4-S, N...
+[33mlgl[39m   (7): TDP, ChlorideCode, SodiumCode, MagnesiumCode, CalciumCode, DICC...
+[34mdate[39m  (1): Sample_Date"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","BQ3 <- read_csv(""/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/QuebradaCuenca3-Bisley.csv"")"
+"2","[1mRows: [22m[34m1730[39m [1mColumns: [22m[34m38[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m──────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m   (9): Sample_ID, NitrateCode, SulfateCode, NH4Code, PO4Code, DOCCode,...
+[32mdbl[39m  (21): Code, Sample_Time, Gage_Ht, Temp, pH, Cond, Cl, NO3-N, SO4-S, N...
+[33mlgl[39m   (7): TDP, ChlorideCode, SodiumCode, PotassiumCode, MagnesiumCode, Ca...
+[34mdate[39m  (1): Sample_Date"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","PRM <- read_csv(""/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/RioMameyesPuenteRoto.csv"")"
+"2","[1mRows: [22m[34m1552[39m [1mColumns: [22m[34m38[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m──────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m   (8): Sample_ID, NitrateCode, SulfateCode, NH4Code, PO4Code, TDNCode,...
+[32mdbl[39m  (21): Code, Sample_Time, Gage_Ht, Temp, pH, Cond, Cl, NO3-N, SO4-S, N...
+[33mlgl[39m   (8): TDP, ChlorideCode, SodiumCode, PotassiumCode, MagnesiumCode, Ca...
+[34mdate[39m  (1): Sample_Date"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."

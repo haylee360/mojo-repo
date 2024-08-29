@@ -1,0 +1,33 @@
+{
+    "id": "5DDA0C42",
+    "path": "~/workbench-setup/mojo-repo/mojo-repo/Maddys_file.qmd",
+    "project_path": "Maddys_file.qmd",
+    "type": "quarto_markdown",
+    "hash": "1018752265",
+    "contents": "",
+    "dirty": true,
+    "created": 1724952297120.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "true",
+        "rmdVisualWrapConfigured": "true",
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "75,0",
+        "scrollLine": "0",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "125:1292.5",
+        "chunk_output_type": "console"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1724886430,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1724952324982,
+    "read_only": false,
+    "read_only_alternatives": []
+}
