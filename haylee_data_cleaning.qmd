@@ -85,61 +85,85 @@ kplot <- plot1_df %>%
 ```{r}
 ggplot(kplot, aes(x = date, y = k)) + 
   geom_smooth(span = 0.2, aes(linetype = sample_id), 
-              alpha = 0.1, color = "black", linewidth = 0.6) +
+              alpha = 0.001, color = "black", linewidth = 0.6) +
   scale_x_date(position = "top", date_breaks = "12 months", 
                date_labels = "%Y", date_minor_breaks = "2 months", 
-               limits = c(ymd("1987-10-01"), ymd("1994-03-01"))) +
+               limits = c(ymd("1987-10-01"), ymd("1994-08-01"))) +
   scale_y_continuous(breaks = c(0.4, 0.7, 1.0, 1.3, 1.6)) +
   labs(x = "Years") +
   ylab(bquote("K mgl^-1")) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
-  theme(panel.background = element_blank())
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "black"),
+        legend.position = c(.90, .80),
+        legend.title = element_blank(),
+        legend.key = element_blank(),
+        text = element_text(size = 14, family = "sans serif", face = "bold"),
+        legend.text = element_text(size = 16))
 
 # This works to set the date range we want, but it adjust the axis scale
 # limits = c(ymd("1987-10-01"), ymd("1994-03-01"))
 
 # seq(from = 0.4, to = 1.6, by = 0.2)
+#legend.position = c(ymd("1993-06-01"), 1.45)
 ```
 
 ### Nitrate plot
 ```{r}
 ggplot(plot1_df, aes(x = date, y = no3_n)) +
   geom_smooth(span = 0.2, aes(linetype = sample_id), 
-              alpha = 0.1, color = "black", linewidth = 0.6, 
+              alpha = 0.001, color = "black", linewidth = 0.6, 
               show.legend = FALSE) +
+  scale_x_date(date_breaks = "12 months", 
+               date_minor_breaks = "2 months", 
+               limits = c(ymd("1987-10-01"), ymd("1994-08-01"))) +
   scale_y_continuous(breaks = c(5, 100, 300, 500)) +
   ylab(bquote("NO[3]-N µgl^-1")) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
   theme(axis.text.x=element_blank(),
         axis.title.x = element_blank(),
-        panel.background = element_blank())
+        panel.background = element_blank(),
+        axis.text = element_text(colour = "black"),
+        text = element_text(size = 14, family = "sans serif", face = "bold"))
 ```
 
 ### Combined plot
 ```{r}
-p1 <- ggplot(plot1_df, aes(x = date, y = k)) + 
+p1 <- ggplot(kplot, aes(x = date, y = k)) + 
   geom_smooth(span = 0.2, aes(linetype = sample_id), 
-              alpha = 0.1, color = "black", linewidth = 0.6) +
+              alpha = 0.001, color = "black", linewidth = 0.6) +
   scale_x_date(position = "top", date_breaks = "12 months", 
-               date_labels = "%Y", date_minor_breaks = "2 months") +
+               date_labels = "%Y", date_minor_breaks = "2 months", 
+               limits = c(ymd("1988-01-01"), ymd("1994-08-01"))) +
   scale_y_continuous(breaks = c(0.4, 0.7, 1.0, 1.3, 1.6)) +
   labs(x = "Years") +
   ylab(bquote("K mgl^-1")) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
-  theme(panel.background = element_blank())
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "black"),
+        legend.position = c(.90, .80),
+        legend.title = element_blank(),
+        legend.key = element_blank(),
+        text = element_text(size = 14, family = "sans serif", face = "bold"),
+        legend.text = element_text(size = 16))
 
 p2 <- ggplot(plot1_df, aes(x = date, y = no3_n)) +
   geom_smooth(span = 0.2, aes(linetype = sample_id), 
-              alpha = 0.1, color = "black", linewidth = 0.6, 
+              alpha = 0.001, color = "black", linewidth = 0.6, 
               show.legend = FALSE) +
+  scale_x_date(date_breaks = "12 months", 
+               date_minor_breaks = "2 months", 
+               limits = c(ymd("1988-01-01"), ymd("1994-08-01"))) +
   scale_y_continuous(breaks = c(5, 100, 300, 500)) +
   ylab(bquote("NO[3]-N µgl^-1")) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
   theme(axis.text.x=element_blank(),
         axis.title.x = element_blank(),
-        panel.background = element_blank())
+        panel.background = element_blank(),
+        axis.text = element_text(colour = "black"),
+        text = element_text(size = 14, family = "sans serif", face = "bold"))
 
-p1 / p2  & theme(plot.margin = margin(0, 0, 0, 0),
+p1 / p2  & theme(plot.margin = margin(5, 0, 0, 10),
                 plot.background = element_rect(fill = "white"),
                 panel.background = element_rect(fill = "white"), 
                 panel.border = element_rect(color = "black", fill = NA))
