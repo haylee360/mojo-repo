@@ -48,7 +48,8 @@ BQ3 <- BQ3 %>%
 
 PRM <- PRM %>% 
   clean_names() %>% 
-  mutate(date = ymd(sample_date)) 
+  mutate(date = ymd(sample_date),
+         sample_id = str_replace_all(sample_id, "MPR", "PRM")) 
 
 ```
 
@@ -68,7 +69,6 @@ names(stream_df)
 skim(stream_df)
 ```
 
-
 ## Plot data
 ```{r}
 plot1_df <- stream_df %>% 
@@ -84,21 +84,27 @@ kplot <- plot1_df %>%
 ### Potassium Plot
 ```{r}
 ggplot(kplot, aes(x = date, y = k)) + 
-  geom_smooth(span = 0.2, aes(linetype = sample_id), 
+  geom_smooth(span = 0.1, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6) +
   scale_x_date(position = "top", date_breaks = "12 months", 
                date_labels = "%Y", date_minor_breaks = "2 months", 
-               limits = c(ymd("1987-10-01"), ymd("1994-08-01"))) +
-  scale_y_continuous(breaks = c(0.4, 0.7, 1.0, 1.3, 1.6)) +
+               limits = c(ymd("1988-01-01"), ymd("1994-08-01")),
+               guide = guide_axis(minor.ticks = TRUE)) +
+  scale_y_continuous(breaks = c(0.4, 0.7, 1.0, 1.3, 1.6),
+                     guide = guide_axis(minor.ticks = TRUE)) +
   labs(x = "Years") +
   ylab(bquote("K mgl^-1")) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "black"),
-        legend.position = c(.90, .80),
+        axis.ticks.x = element_line(color = "black"),
+        legend.position = c(.80, .55),
         legend.title = element_blank(),
         legend.key = element_blank(),
-        text = element_text(size = 14, family = "sans serif", face = "bold"),
+        legend.key.size = unit(1.4, 'cm'),
+        text = element_text(size = 14, 
+                            family = "sans serif", 
+                            face = "bold"),
         legend.text = element_text(size = 16))
 
 # This works to set the date range we want, but it adjust the axis scale
@@ -130,64 +136,52 @@ ggplot(plot1_df, aes(x = date, y = no3_n)) +
 ### Combined plot
 ```{r}
 p1 <- ggplot(kplot, aes(x = date, y = k)) + 
-  geom_smooth(span = 0.2, aes(linetype = sample_id), 
+  geom_smooth(span = 0.1, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6) +
   scale_x_date(position = "top", date_breaks = "12 months", 
                date_labels = "%Y", date_minor_breaks = "2 months", 
-               limits = c(ymd("1988-01-01"), ymd("1994-08-01"))) +
-  scale_y_continuous(breaks = c(0.4, 0.7, 1.0, 1.3, 1.6)) +
-  labs(x = "Years") +
-  ylab(bquote("K mgl^-1")) +
+               limits = c(ymd("1988-01-01"), ymd("1994-08-01")),
+               guide = guide_axis(minor.ticks = TRUE)) +
+  scale_y_continuous(breaks = c(0.4, 0.7, 1.0, 1.3, 1.6),
+                     guide = guide_axis(minor.ticks = TRUE)) +
+  labs(x = "Years",
+       y = bquote('K mg'~l^-1)) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "black"),
-        legend.position = c(.90, .80),
+        axis.ticks.x = element_line(color = "black"),
+        axis.ticks.length = unit(-0.25, "cm"),
+        legend.position = c(.80, .55),
         legend.title = element_blank(),
         legend.key = element_blank(),
-        text = element_text(size = 14, family = "sans serif", face = "bold"),
+        legend.key.size = unit(1.4, 'cm'),
+        text = element_text(size = 14, 
+                            family = "sans serif", 
+                            face = "bold"),
         legend.text = element_text(size = 16))
 
 p2 <- ggplot(plot1_df, aes(x = date, y = no3_n)) +
-  geom_smooth(span = 0.2, aes(linetype = sample_id), 
+  geom_smooth(span = 0.1, aes(linetype = sample_id), 
               alpha = 0.001, color = "black", linewidth = 0.6, 
               show.legend = FALSE) +
   scale_x_date(date_breaks = "12 months", 
                date_minor_breaks = "2 months", 
-               limits = c(ymd("1988-01-01"), ymd("1994-08-01"))) +
-  scale_y_continuous(breaks = c(5, 100, 300, 500)) +
-  ylab(bquote("NO[3]-N µgl^-1")) +
+               limits = c(ymd("1988-01-01"), ymd("1994-08-01")),
+               guide = guide_axis(minor.ticks = TRUE)) +
+  scale_y_continuous(breaks = c(5, 100, 300, 500),
+                     guide = guide_axis(minor.ticks = TRUE)) +
+  ylab(bquote('NO'[3]-Nµg~l^-1)) +
   geom_vline(xintercept = ymd("1989-09-17"), linetype = 2) +
   theme(axis.text.x=element_blank(),
         axis.title.x = element_blank(),
         panel.background = element_blank(),
         axis.text = element_text(colour = "black"),
-        text = element_text(size = 14, family = "sans serif", face = "bold"))
+        text = element_text(size = 14, family = "sans serif", face = "bold"),
+        axis.ticks.length = unit(-0.25, "cm"),)
 
-p1 / p2  & theme(plot.margin = margin(5, 0, 0, 10),
+# updating ggplot to 3.5 made it not work with patchwork anymore, had to update patchwork and other libraries
+p1 / p2  & theme(plot.margin = margin(0, 0, 0, 10),
                 plot.background = element_rect(fill = "white"),
                 panel.background = element_rect(fill = "white"), 
                 panel.border = element_rect(color = "black", fill = NA))
 ```
-
-```{r}
-p1 <- ggplot(recreat_df, aes(x=sample_date, linetype=sample_id)) +
-  geom_line(aes(y=k)) +
-  scale_x_date(position = "top") +
-  labs(x = "Years") +
-  ylab(bquote("K mgl^-1"))
-  geom_vline(xintercept = ymd("1989-09-17"), linetype = 2)
-
-p2 <- ggplot(recreat_df, aes(x=sample_date, linetype=sample_id)) +
-  geom_smooth(aes(y=no3_n), show.legend = FALSE) +
-  theme(axis.text.x=element_blank()) +
-  ylab(bquote("NO[3]-N µgl^-1")) +
-  xlab(bquote("K mgl^-1"))
-  geom_vline(xintercept = ymd("1989-09-17"), linetype = 2)
-
-
-p1 / (p2 & xlab(NULL))  & theme(plot.margin = margin(0, 0, 0, 0),
-                                plot.background = element_rect(fill = "white"),
-        panel.background = element_rect(fill = "white"), 
-        panel.border = element_rect(color = "black", fill = NA))
-```
-
