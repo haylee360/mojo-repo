@@ -11,6 +11,8 @@ editor_options:
 library(tidyverse)
 library(janitor)
 library(lubridate)
+library(patchwork)
+library(RColorBrewer)
 ```
 
 /courses/EDS214/group_project/2024/team-mojo-jojo
@@ -44,13 +46,95 @@ site_elevation = data.frame(Sample_ID = c( "QS",  "QT",  "RI",  "MG",
 ```{r}
 #clean data
 all_sites_df <- all_sites_df |> 
-   left_join(site_elevation, join_by("Sample_ID")) |> 
-   clean_names("snake") |> 
-   mutate(sample_date=ymd(sample_date)) |> 
-   rename(date=sample_date) |> 
-   relocate(c(tss,elevation), .after = don) |> 
-   select(sample_id:elevation) |> 
-   select(-c(code,sample_time))
+  left_join(site_elevation, join_by("Sample_ID")) |> 
+  clean_names() |> 
+  mutate(date = ymd(sample_date),
+         elevation_binned = cut(elevation, 
+                                breaks=c(0, 250, 500, 672), 
+                                labels = c("low", "medium", "high")))
+```
 
+
+```{r}
+# 10 year span containing hurricane
+graph_all <- all_sites_df |> 
+  dplyr::select(sample_id, no3_n, elevation, k, date, elevation_binned) |> 
+  filter(date %in% ymd("1985-10-01"):ymd("1995-10-01"))  |> 
+  mutate(elevation = as.character(elevation))
+```
+
+```{r}
+# After hurricane date selection
+during_data <- graph_all |> 
+  filter(date %in% ymd("1989-09-10"):ymd("1990-09-10"))
+```
+
+```{r}
+# During hurricane date selection
+after_data <- graph_all |> 
+  filter(date %in% ymd("1994-09-11"):ymd("1995-09-11"))
+```
+
+```{r}
 summary(all_sites_df)
 ```
+
+#### K smooth plot
+
+```{r}
+# Potassium line plot
+K3  <- ggplot(graph_all, aes(x = date, y = k)) + 
+  geom_smooth(se = FALSE, 
+              aes(color = elevation_binned), 
+              linewidth = 1, na.rm = TRUE, show.legend = FALSE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Year",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium and Nitrate Levels Over Time Across Elevation", 
+       color = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 14, 
+                            family = "Sans"))
+
+```
+
+```{r}
+# Nitrate smooth plot
+N3 <- ggplot(graph_all, aes(x = date, y = no3_n)) + 
+  geom_smooth(se = FALSE, 
+              aes(color = elevation_binned), 
+              linewidth = 1, na.rm = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Year",
+       y = bquote('NO'[3]-Nµg~l^-1),
+      color = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        legend.key.size = unit(1.0, 'cm'),
+        text = element_text(size = 14, 
+                            family = "Sans"))
+
+```
+
+```{r}
+# patchwork plots together
+
+K3 / N3
+
+```
+
