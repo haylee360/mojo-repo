@@ -40,7 +40,7 @@ Finally...
 
 Madison Enda contributed to the hypothesis generation, data cleaning, and slideshow creation. 
 
-Ian Morris-Shibaja contributed to the hypothesis generation, data cleaning, and data visualization.
+Ian Morris-Sibaja contributed to the hypothesis generation, data cleaning, and data visualization.
 
 Haylee Oyler contributed to the hypothesis generation, data cleaning, and data visualization. 
 
