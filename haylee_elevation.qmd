@@ -137,6 +137,57 @@ after_data <- graph_all %>%
 ```
 
 ### Plot data
+
+#### K smooth plot
+```{r}
+# During Potassium line plot
+K3 <- ggplot(during_data, aes(x = date, y = k)) + 
+  geom_smooth(span = 0.15, alpha = 0.001, 
+              aes(color = elevation_binned), 
+              linewidth = 0.5, na.rm = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium Levels with Elevation", 
+       fill = "Site") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+
+# After Potassium line plot
+K4 <- ggplot(after_data, aes(x = date, y = k)) + 
+  geom_smooth(span = 0.15, alpha = 0.001, 
+              aes(color = elevation_binned), 
+              linewidth = 0.5, na.rm = TRUE) +
+  scale_y_continuous(limits = c(0, 2)) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium Levels with Elevation", 
+       fill = "Site") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+```
+
+
+#### K column plot
 ```{r}
 # We should have two graphs, one for right after the hurricane, and one for much later after recovery
 
@@ -180,6 +231,55 @@ K2 <- ggplot(after_data, aes(x = elevation_binned, y = k)) +
                             family = "Sans"))
 ```
 
+#### Nitrate smooth
+```{r}
+# During Nitrate line plot
+N3 <- ggplot(during_data, aes(x = date, y = no3_n)) + 
+  geom_smooth(span = 0.15, alpha = 0.001, 
+              aes(color = elevation_binned), 
+              linewidth = 0.5, na.rm = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('NO'[3]-Nµg~l^-1),
+       title = "Changes in Nitrate Levels with Elevation", 
+       fill = "Site") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+
+# This one doesn't work with Loess in smooth
+# Too many NAs in nitrate in the selected dates
+# After Nitrate line plot
+ggplot(after_data, aes(x = date, y = no3_n)) + 
+  geom_point(aes(color = elevation_binned)) +
+  # geom_smooth(span = 0.4, alpha = 0.001, 
+  #             aes(color = elevation_binned), 
+  #             linewidth = 0.5, na.rm = TRUE) +
+  scale_y_continuous(limits = c(0, 750)) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(x = "Elevation",
+       y = bquote('NO'[3]-Nµg~l^-1),
+       title = "Changes in Nitrate Levels with Elevation", 
+       fill = "Site") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+```
+
+#### Nitrate column
 ```{r}
 # During Nitrate 
 N1 <- ggplot(during_data, aes(x = elevation_binned, y = no3_n)) + 
@@ -218,10 +318,14 @@ N2 <- ggplot(after_data, aes(x = elevation_binned, y = no3_n)) +
                             family = "Sans"))
 ```
 
+#### Patchwork
 ```{r}
 # patchwork plots together
 K1 & K2
 N1 & N2
+
+K3 & K4
+N3 & N4
 ```
 
 
@@ -242,5 +346,8 @@ post_test_k <- glht(k_aov,
   linfct = mcp(species = "Tukey"))
 
 summary(post_test)
+ # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
 ```
 
