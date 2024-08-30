@@ -11,8 +11,9 @@ editor_options:
 ---
 
 #### Setup
+
 ```{r}
-# rm(list = ls())
+rm(list = ls())
 library(tidyverse)
 library(janitor)
 library(lubridate)
@@ -26,6 +27,7 @@ library(patchwork)
 /courses/EDS214/group_project/2024/team-mojo-jojo
 
 ### Read in data
+
 ```{r}
 #read in the data 
 sites_id <- c( "Q1",  "Q2",  "Q3",  "QG",  
@@ -66,9 +68,9 @@ cleaning_stuff <- function(i){
 
 ```
 
-
 ### Join data
-```{r} 
+
+```{r}
 #Q1
 Q1 <- left_join(Q1, site_elevation, join_by("Sample_ID"))
 
@@ -119,7 +121,7 @@ all_sites_df <- all_sites_df %>%
          elevation_binned = cut(elevation, breaks=c(0, 250, 500, 672), labels = c("low", "medium", "high")))
 
 graph_all <- all_sites_df %>% 
-  dplyr::select(sample_id, no3_n, elevation, k, date, elevation_binned) %>% 
+  dplyr::select(sample_id, no3_n, elevation, k, date, elevation_binned, nh4_n, don) %>% 
   filter(date %in% ymd("1985-10-01"):ymd("1995-10-01")) %>%
   mutate(elevation = as.character(elevation))
 
@@ -138,20 +140,21 @@ after_data <- graph_all %>%
 
 ### Plot data
 
-#### K smooth plot
+
+#### ammonium plot
+
 ```{r}
-# During Potassium line plot
-K3  <- ggplot(graph_all, aes(x = date, y = k)) + 
+ggplot(graph_all, aes(x = date, y = don)) + 
   geom_smooth(se = FALSE, 
               aes(color = elevation_binned), 
-              linewidth = 1, na.rm = TRUE, show.legend = FALSE) +
+              linewidth = 1, na.rm = TRUE) +
   scale_color_brewer(palette = "Dark2") +
   # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
   # scale_fill_brewer(palette = 5) +
   # scale_fill_viridis(option = "viridis", discrete = TRUE) +
-  labs(x = "Elevation",
+  labs(x = "Year",
        y = bquote('K mg'~l^-1),
-       title = "Changes in Potassium Levels Over Time Across Elevation", 
+       title = "Changes in Potassium and Nitrate Levels Over Time Across Elevation", 
        color = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
@@ -164,8 +167,35 @@ K3  <- ggplot(graph_all, aes(x = date, y = k)) +
 
 ```
 
+#### K smooth plot
+
+```{r}
+# Potassium line plot
+K3  <- ggplot(graph_all, aes(x = date, y = k)) + 
+  geom_smooth(se = FALSE, 
+              aes(color = elevation_binned), 
+              linewidth = 1, na.rm = TRUE, show.legend = FALSE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Year",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium and Nitrate Levels Over Time Across Elevation", 
+       color = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 14, 
+                            family = "Sans"))
+
+```
 
 #### K column plot
+
 ```{r}
 # We should have two graphs, one for right after the hurricane, and one for much later after recovery
 
@@ -210,8 +240,9 @@ K2 <- ggplot(after_data, aes(x = elevation_binned, y = k)) +
 ```
 
 #### Nitrate smooth
+
 ```{r}
-# During Nitrate line plot
+# Nitrate smooth plot
 N3 <- ggplot(graph_all, aes(x = date, y = no3_n)) + 
   geom_smooth(se = FALSE, 
               aes(color = elevation_binned), 
@@ -220,9 +251,8 @@ N3 <- ggplot(graph_all, aes(x = date, y = no3_n)) +
   # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
   # scale_fill_brewer(palette = 5) +
   # scale_fill_viridis(option = "viridis", discrete = TRUE) +
-  labs(x = "Elevation",
+  labs(x = "Year",
        y = bquote('NO'[3]-Nµg~l^-1),
-       title = "Changes in Nitrate Levels Over Time Across Elevation", 
       color = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
@@ -237,6 +267,7 @@ N3 <- ggplot(graph_all, aes(x = date, y = no3_n)) +
 ```
 
 #### Nitrate column
+
 ```{r}
 # During Nitrate 
 N1 <- ggplot(during_data, aes(x = elevation_binned, y = no3_n)) + 
@@ -275,18 +306,24 @@ N2 <- ggplot(after_data, aes(x = elevation_binned, y = no3_n)) +
                             family = "Sans"))
 ```
 
-#### Patchwork
+```{r}
+ggsave(path = "/Users/hoyler/MEDS/EDS-214/mojo-repo/elevation_exploration/figs", filename = "elevation_plot.png", width = 10, height = 6)
+```
+
+
+### Patchwork
+
 ```{r}
 # patchwork plots together
 K1 & K2
 N1 & N2
 
-K3 & N3
+K3 / N3
 
 ```
 
-
 ## Statistics
+
 ```{r}
 leveneTest(k ~ sample_id, data = graph_all) 
 # Levene test tells us there is a significant difference in the variances across elevation
@@ -298,13 +335,12 @@ summary(reg)
 k_aov <- aov(k ~ elevation, graph_all)
 summary(k_aov)
 
-TukeyHSD(k_aov, conf.level = 0.95)
-post_test_k <- glht(k_aov,
-  linfct = mcp(species = "Tukey"))
+# TukeyHSD(k_aov, conf.level = 0.95)
+# post_test_k <- glht(k_aov,
+#   linfct = mcp(species = "Tukey"))
 
-summary(post_test)
+# summary(post_test)
  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
   # scale_fill_brewer(palette = 5) +
   # scale_fill_viridis(option = "viridis", discrete = TRUE) +
 ```
-
