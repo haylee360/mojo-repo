@@ -1,0 +1,310 @@
+---
+title: "Haylee's elevation prep"
+author: "Haylee Oyler"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+#### Setup
+```{r}
+# rm(list = ls())
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(car)
+library(multcomp)
+library(viridis)
+library(RColorBrewer)
+library(patchwork)
+```
+
+/courses/EDS214/group_project/2024/team-mojo-jojo
+
+### Read in data
+```{r}
+#read in the data 
+sites_id <- c( "Q1",  "Q2",  "Q3",  "QG",  
+              "QPA", "QPB",  "QP",  "QS", 
+               "QT",  "RI",  "MG", "MPR")
+
+filenames = dir("/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/", pattern="*.csv")
+
+for (i in seq_along(filenames)){
+  assign(sites_id[i], 
+         read_csv(paste0("/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/",
+                         filenames[i])
+                  )
+         )
+}
+
+site_elevation = data.frame(Sample_ID = c( "QS",  "QT",  "RI",  "MG",  
+                                           "Q1",  "Q2",  "Q3", "QPA", 
+                                          "QPB",  "QP", "MPR",  "QG"),
+                            elevation = c(  326,   270,   620,    22, 
+                                            218,   218,   198,   672, 
+                                            662,   444,   140,   640)
+)
+
+cleaning_stuff <- function(i){
+  get(i) |>
+      left_join(get(i), site_elevation, join_by("Sample_ID")) |> 
+      clean_names() |>
+      mutate(date=ymd(sample_date),
+             year=year(sample_date)) |>
+      filter(year>=1988 & year<=1994)
+
+}
+
+# for (i in sites_id){
+#   cleaning_stuff(i)
+# }
+
+```
+
+
+### Join data
+```{r} 
+#Q1
+Q1 <- left_join(Q1, site_elevation, join_by("Sample_ID"))
+
+#Q2
+Q2 <- left_join(Q2, site_elevation, join_by("Sample_ID"))
+
+#Q3 
+Q3 <- left_join(Q3, site_elevation, join_by("Sample_ID"))
+
+#QG
+QG <- left_join(QG, site_elevation, join_by("Sample_ID"))
+
+#QP
+QP <- left_join(QP, site_elevation, join_by("Sample_ID"))
+
+#QPA
+QPA <- left_join(QPA, site_elevation, join_by("Sample_ID"))
+
+#QPB
+QPB <- left_join(QPB, site_elevation, join_by("Sample_ID"))
+
+#QS
+QS <- left_join(QS, site_elevation, join_by("Sample_ID"))
+
+#QT
+QT <- left_join(QT, site_elevation, join_by("Sample_ID"))
+
+#RI
+RI <- left_join(RI, site_elevation, join_by("Sample_ID"))
+
+#MG
+MG <- left_join(MG, site_elevation, join_by("Sample_ID"))
+
+#MPR
+MPR <- left_join(MPR, site_elevation, join_by("Sample_ID"))
+
+
+```
+
+```{r}
+# bind data together 
+all_sites_df <- do.call("rbind", list(Q1, Q2, Q3, Q3, QG, QP, MG, MPR, QPA, QPB, QS, QT, RI))
+unique(all_sites_df$Sample_ID)
+
+all_sites_df <- all_sites_df %>% 
+  clean_names() %>% 
+  mutate(date = ymd(sample_date),
+         elevation_binned = cut(elevation, breaks=c(0, 250, 500, 672), labels = c("low", "medium", "high")))
+
+graph_all <- all_sites_df %>% 
+  dplyr::select(sample_id, no3_n, elevation, k, date, elevation_binned) %>% 
+  filter(date %in% ymd("1985-10-01"):ymd("1995-10-01")) %>%
+  mutate(elevation = as.character(elevation))
+
+
+# Need to fix dates for this
+during_data <- graph_all %>% 
+  filter(date %in% ymd("1989-09-10"):ymd("1990-09-10"))
+
+after_data <- graph_all %>% 
+    filter(date %in% ymd("1994-09-11"):ymd("1995-09-11"))
+
+# unique(graph_all$elevation)
+# summary(all_sites_df)
+# class(graph_all$elevation)
+```
+
+### Plot data
+
+#### K smooth plot
+```{r}
+# During Potassium line plot
+K3  <- ggplot(graph_all, aes(x = date, y = k)) + 
+  geom_smooth(se = FALSE, 
+              aes(color = elevation_binned), 
+              linewidth = 1, na.rm = TRUE, show.legend = FALSE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium Levels Over Time Across Elevation", 
+       color = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 14, 
+                            family = "Sans"))
+
+```
+
+
+#### K column plot
+```{r}
+# We should have two graphs, one for right after the hurricane, and one for much later after recovery
+
+# During Potassium plot
+K1 <- ggplot(during_data, aes(x = elevation_binned, y = k)) + 
+  geom_col(aes(fill = elevation_binned), na.rm = TRUE) +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium Levels with Elevation", 
+       fill = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+
+# Potassium plot
+K2 <- ggplot(after_data, aes(x = elevation_binned, y = k)) + 
+  geom_col(aes(fill = elevation_binned), na.rm = TRUE) +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  scale_fill_brewer(palette = 5) +
+  scale_y_continuous(limits = c(0, 300)) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('K mg'~l^-1),
+       title = "Changes in Potassium Levels with Elevation", 
+       fill = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+```
+
+#### Nitrate smooth
+```{r}
+# During Nitrate line plot
+N3 <- ggplot(graph_all, aes(x = date, y = no3_n)) + 
+  geom_smooth(se = FALSE, 
+              aes(color = elevation_binned), 
+              linewidth = 1, na.rm = TRUE) +
+  scale_color_brewer(palette = "Dark2") +
+  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+  labs(x = "Elevation",
+       y = bquote('NO'[3]-Nµg~l^-1),
+       title = "Changes in Nitrate Levels Over Time Across Elevation", 
+      color = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        legend.key.size = unit(1.0, 'cm'),
+        text = element_text(size = 14, 
+                            family = "Sans"))
+
+```
+
+#### Nitrate column
+```{r}
+# During Nitrate 
+N1 <- ggplot(during_data, aes(x = elevation_binned, y = no3_n)) + 
+  geom_col(aes(fill = elevation_binned), na.rm = TRUE) +
+  scale_fill_brewer(palette = 8) +
+  labs(x = "Elevation",
+       y = bquote('NO'[3]-Nµg~l^-1),
+       title = "Changes in Nitrate Levels with Elevation", 
+       fill = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+
+
+# After Nitrate
+N2 <- ggplot(after_data, aes(x = elevation_binned, y = no3_n)) + 
+  geom_col(aes(fill = elevation_binned), na.rm = TRUE) +
+  scale_fill_brewer(palette = 8) +
+  scale_y_continuous(limits = c(0, 70000)) +
+  labs(x = "Elevation",
+       y = bquote('NO'[3]-Nµg~l^-1),
+       title = "Changes in Nitrate Levels with Elevation", 
+       fill = "Elevation") +
+  theme(panel.background = element_blank(),
+        axis.text = element_text(colour = "grey30", face = "italic"),
+        axis.ticks.x = element_line(color = "grey30"),
+        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        text = element_text(size = 12, 
+                            family = "Sans"))
+```
+
+#### Patchwork
+```{r}
+# patchwork plots together
+K1 & K2
+N1 & N2
+
+K3 & N3
+
+```
+
+
+## Statistics
+```{r}
+leveneTest(k ~ sample_id, data = graph_all) 
+# Levene test tells us there is a significant difference in the variances across elevation
+# --> going to use a welsh anova. 
+
+reg <- lm(k ~ elevation, graph_all)
+summary(reg)
+
+k_aov <- aov(k ~ elevation, graph_all)
+summary(k_aov)
+
+TukeyHSD(k_aov, conf.level = 0.95)
+post_test_k <- glht(k_aov,
+  linfct = mcp(species = "Tukey"))
+
+summary(post_test)
+ # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
+  # scale_fill_brewer(palette = 5) +
+  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
+```
+
