@@ -1,0 +1,56 @@
+---
+title: "Team Mojo Jojo"
+author: "IMS"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+```
+
+/courses/EDS214/group_project/2024/team-mojo-jojo
+
+```{r}
+# creates a list of each csv file name in the directory path
+directory = "/courses/EDS214/group_project/2024/team-mojo-jojo/raw_data/"
+filenames = dir(directory, pattern="*.csv")
+
+# initialize an empty data frame to have each csv append to 
+all_sites_df <- data.frame()
+
+# creates a data frame that includes all 12 collections data  
+for (csv in filenames){
+  all_sites_df <- do.call("rbind", list(all_sites_df,
+                                        read_csv(paste0(directory, csv)))
+                         )
+}
+```
+
+```{r}
+# data frame of containing the respective elevation of each collection location
+site_elevation = data.frame(Sample_ID = c( "QS",  "QT",  "RI",  "MG",  
+                                           "Q1",  "Q2",  "Q3", "QPA", 
+                                          "QPB",  "QP", "MPR",  "QG"),
+                            elevation = c(  326,   270,   620,    22, 
+                                            218,   218,   198,   672, 
+                                            662,   444,   140,   640))
+```
+
+```{r}
+#clean data
+all_sites_df <- all_sites_df |> 
+   left_join(site_elevation, join_by("Sample_ID")) |> 
+   clean_names("snake") |> 
+   mutate(sample_date=ymd(sample_date)) |> 
+   rename(date=sample_date) |> 
+   relocate(c(tss,elevation), .after = don) |> 
+   select(sample_id:elevation) |> 
+   select(-c(code,sample_time))
+
+summary(all_sites_df)
+```
