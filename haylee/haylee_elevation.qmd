@@ -120,7 +120,7 @@ all_sites_df <- all_sites_df %>%
 
 graph_all <- all_sites_df %>% 
   dplyr::select(sample_id, no3_n, elevation, k, date, elevation_binned) %>% 
-  # filter(date %in% ymd("1988-10-01"):ymd("1992-03-01")) %>%
+  filter(date %in% ymd("1985-10-01"):ymd("1995-10-01")) %>%
   mutate(elevation = as.character(elevation))
 
 
@@ -141,49 +141,27 @@ after_data <- graph_all %>%
 #### K smooth plot
 ```{r}
 # During Potassium line plot
-K3 <- ggplot(during_data, aes(x = date, y = k)) + 
-  geom_smooth(span = 0.15, alpha = 0.001, 
+K3  <- ggplot(graph_all, aes(x = date, y = k)) + 
+  geom_smooth(se = FALSE, 
               aes(color = elevation_binned), 
-              linewidth = 0.5, na.rm = TRUE) +
+              linewidth = 1, na.rm = TRUE, show.legend = FALSE) +
   scale_color_brewer(palette = "Dark2") +
   # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
   # scale_fill_brewer(palette = 5) +
   # scale_fill_viridis(option = "viridis", discrete = TRUE) +
   labs(x = "Elevation",
        y = bquote('K mg'~l^-1),
-       title = "Changes in Potassium Levels with Elevation", 
-       fill = "Site") +
+       title = "Changes in Potassium Levels Over Time Across Elevation", 
+       color = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
         axis.ticks.x = element_line(color = "grey30"),
         axis.line = element_line(linewidth = 0.2, colour = "grey30"),
         legend.key = element_blank(),
         legend.background = element_blank(),
-        text = element_text(size = 12, 
+        text = element_text(size = 14, 
                             family = "Sans"))
 
-# After Potassium line plot
-K4 <- ggplot(after_data, aes(x = date, y = k)) + 
-  geom_smooth(span = 0.15, alpha = 0.001, 
-              aes(color = elevation_binned), 
-              linewidth = 0.5, na.rm = TRUE) +
-  scale_y_continuous(limits = c(0, 2)) +
-  scale_color_brewer(palette = "Dark2") +
-  # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
-  # scale_fill_brewer(palette = 5) +
-  # scale_fill_viridis(option = "viridis", discrete = TRUE) +
-  labs(x = "Elevation",
-       y = bquote('K mg'~l^-1),
-       title = "Changes in Potassium Levels with Elevation", 
-       fill = "Site") +
-  theme(panel.background = element_blank(),
-        axis.text = element_text(colour = "grey30", face = "italic"),
-        axis.ticks.x = element_line(color = "grey30"),
-        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
-        legend.key = element_blank(),
-        legend.background = element_blank(),
-        text = element_text(size = 12, 
-                            family = "Sans"))
 ```
 
 
@@ -200,7 +178,7 @@ K1 <- ggplot(during_data, aes(x = elevation_binned, y = k)) +
   labs(x = "Elevation",
        y = bquote('K mg'~l^-1),
        title = "Changes in Potassium Levels with Elevation", 
-       fill = "Site") +
+       fill = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
         axis.ticks.x = element_line(color = "grey30"),
@@ -220,7 +198,7 @@ K2 <- ggplot(after_data, aes(x = elevation_binned, y = k)) +
   labs(x = "Elevation",
        y = bquote('K mg'~l^-1),
        title = "Changes in Potassium Levels with Elevation", 
-       fill = "Site") +
+       fill = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
         axis.ticks.x = element_line(color = "grey30"),
@@ -234,49 +212,28 @@ K2 <- ggplot(after_data, aes(x = elevation_binned, y = k)) +
 #### Nitrate smooth
 ```{r}
 # During Nitrate line plot
-N3 <- ggplot(during_data, aes(x = date, y = no3_n)) + 
-  geom_smooth(span = 0.15, alpha = 0.001, 
+N3 <- ggplot(graph_all, aes(x = date, y = no3_n)) + 
+  geom_smooth(se = FALSE, 
               aes(color = elevation_binned), 
-              linewidth = 0.5, na.rm = TRUE) +
+              linewidth = 1, na.rm = TRUE) +
   scale_color_brewer(palette = "Dark2") +
   # scale_fill_manual(values = c("#2f7122", "#4dc436", "#44ea25")) +
   # scale_fill_brewer(palette = 5) +
   # scale_fill_viridis(option = "viridis", discrete = TRUE) +
   labs(x = "Elevation",
        y = bquote('NO'[3]-Nµg~l^-1),
-       title = "Changes in Nitrate Levels with Elevation", 
-       fill = "Site") +
+       title = "Changes in Nitrate Levels Over Time Across Elevation", 
+      color = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
         axis.ticks.x = element_line(color = "grey30"),
         axis.line = element_line(linewidth = 0.2, colour = "grey30"),
         legend.key = element_blank(),
         legend.background = element_blank(),
-        text = element_text(size = 12, 
+        legend.key.size = unit(1.0, 'cm'),
+        text = element_text(size = 14, 
                             family = "Sans"))
 
-# This one doesn't work with Loess in smooth
-# Too many NAs in nitrate in the selected dates
-# After Nitrate line plot
-ggplot(after_data, aes(x = date, y = no3_n)) + 
-  geom_point(aes(color = elevation_binned)) +
-  # geom_smooth(span = 0.4, alpha = 0.001, 
-  #             aes(color = elevation_binned), 
-  #             linewidth = 0.5, na.rm = TRUE) +
-  scale_y_continuous(limits = c(0, 750)) +
-  scale_color_brewer(palette = "Dark2") +
-  labs(x = "Elevation",
-       y = bquote('NO'[3]-Nµg~l^-1),
-       title = "Changes in Nitrate Levels with Elevation", 
-       fill = "Site") +
-  theme(panel.background = element_blank(),
-        axis.text = element_text(colour = "grey30", face = "italic"),
-        axis.ticks.x = element_line(color = "grey30"),
-        axis.line = element_line(linewidth = 0.2, colour = "grey30"),
-        legend.key = element_blank(),
-        legend.background = element_blank(),
-        text = element_text(size = 12, 
-                            family = "Sans"))
 ```
 
 #### Nitrate column
@@ -288,7 +245,7 @@ N1 <- ggplot(during_data, aes(x = elevation_binned, y = no3_n)) +
   labs(x = "Elevation",
        y = bquote('NO'[3]-Nµg~l^-1),
        title = "Changes in Nitrate Levels with Elevation", 
-       fill = "Site") +
+       fill = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
         axis.ticks.x = element_line(color = "grey30"),
@@ -307,7 +264,7 @@ N2 <- ggplot(after_data, aes(x = elevation_binned, y = no3_n)) +
   labs(x = "Elevation",
        y = bquote('NO'[3]-Nµg~l^-1),
        title = "Changes in Nitrate Levels with Elevation", 
-       fill = "Site") +
+       fill = "Elevation") +
   theme(panel.background = element_blank(),
         axis.text = element_text(colour = "grey30", face = "italic"),
         axis.ticks.x = element_line(color = "grey30"),
@@ -324,8 +281,8 @@ N2 <- ggplot(after_data, aes(x = elevation_binned, y = no3_n)) +
 K1 & K2
 N1 & N2
 
-K3 & K4
-N3 & N4
+K3 & N3
+
 ```
 
 

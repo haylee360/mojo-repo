@@ -8,10 +8,14 @@ editor_options:
 ---
 
 ```{r}
+rm(list = ls())
 library(tidyverse)
 library(janitor)
 library(lubridate)
+library(car)
+library(multcomp)
 ```
+
 /courses/EDS214/group_project/2024/team-mojo-jojo
 
 ```{r}
@@ -48,9 +52,9 @@ cleaning_stuff <- function(i){
 
 }
 
-for (i in sites_id){
-  cleaning_stuff(i)
-}
+# for (i in sites_id){
+#   cleaning_stuff(i)
+# }
 
 
 BQ1 <- BQ1 |> 
@@ -104,11 +108,49 @@ MPR <- left_join(MPR, site_elevation, join_by("Sample_ID"))
 all_sites_df <- do.call("rbind", list(Q1, Q2, Q3, Q3, QG, QP, MG, MPR, QPA, QPB, QS, QT, RI))
 unique(all_sites_df$Sample_ID)
 
-graph_all <- all_sites_df |> 
-  select(Sample_ID, `PO4-P`, `NO3-N`, elevation, K)
+all_sites_df <- all_sites_df %>% 
+  clean_names() %>% 
+  mutate(date = ymd(sample_date))
 
-summary(graph_all)
+graph_all <- all_sites_df %>% 
+  select(sample_id, temp, p_h, no3_n, elevation, k, date) %>% 
+  filter(date %in% ymd("1988-10-01"):ymd("1992-03-01")) %>% 
+  mutate(elevation = as.character(elevation))
+
+# length(unique(graph_all$elevation))
+# summary(all_sites_df)
+# class(graph_all$elevation)
 ```
 
+```{r}
+# Potassium plot
+ggplot(graph_all, aes(x = elevation, y = k)) + 
+  geom_col(aes(fill = sample_id), na.rm = TRUE) 
+  # scale_color_gradient(low = "blue", high = "orange")
+```
 
+```{r}
+# Nitrate plot
+ggplot(graph_all, aes(x = elevation, y = no3_n)) + 
+  geom_col(aes(fill = sample_id), na.rm = TRUE)
+```
+
+## Statistics
+```{r}
+leveneTest(k ~ sample_id, data = graph_all) 
+# Levene test tells us there is a significant difference in the variances across elevation
+# --> going to use a welsh anova. 
+
+reg <- lm(k ~ elevation, graph_all)
+summary(reg)
+
+k_aov <- aov(k ~ elevation, graph_all)
+summary(k_aov)
+
+TukeyHSD(k_aov, conf.level = 0.95)
+post_test_k <- glht(k_aov,
+  linfct = mcp(species = "Tukey"))
+
+summary(post_test)
+```
 

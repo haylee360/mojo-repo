@@ -3,3 +3,7 @@
 ##                            Elevation Data Plot                           ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+library(tidyverse)
+library(RColorBrewer)
+library(patchwork)
+
